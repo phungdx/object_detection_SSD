@@ -56,7 +56,7 @@ class MultiBoxLoss(nn.Module):
         _, loss_idx = loss_conf.sort(dim=1, descending=True)
         _, idx_rank = loss_idx.sort(1) # idx_rank chính là thông số để biết được độ lớn loss nằm ở vị trí bao nhiêu
 
-        num_neg = torch.clamp(num_pos*self.neg_pos, max=num_pos)
+        num_neg = torch.clamp(num_pos*self.neg_pos, max=num_dbox)
         neg_mask = idx_rank < (num_neg).expand_as(idx_rank)
 
         #(num_batch, 8732) -> (num_batch, 8732, 21)
