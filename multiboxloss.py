@@ -16,7 +16,7 @@ class MultiBoxLoss(nn.Module):
     def forward(self, predictions, targets):
         loc_data, conf_data, dbox_list = predictions
 
-         # loc_data: (num_batch, num_dbox, 4)
+         # loc_data: (num_batch, num_dbox)
         num_batch = loc_data.size(0)
         num_dbox = loc_data.size(1) # 8732
         # conf_data: (num_batch, num_dbox, num_classes)
