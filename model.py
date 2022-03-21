@@ -33,14 +33,14 @@ def create_extras():
     in_channels = 1024
 
     cfgs = [256, 512, 128, 256, 128, 256, 128, 256]
-    layers += [nn.Conv2d(in_channels, cfgs[0], kernel_size=1, padding=0)] # out: 38x38
-    layers += [nn.Conv2d(cfgs[0], cfgs[1], kernel_size=3, stride=2, padding=1)] # out: 19x19
-    layers += [nn.Conv2d(cfgs[1], cfgs[2], kernel_size=1, padding=0)]
-    layers += [nn.Conv2d(cfgs[2], cfgs[3], kernel_size=3, stride=2, padding=1)] # out: 10x10
-    layers += [nn.Conv2d(cfgs[3], cfgs[4], kernel_size=1, padding=0)]
-    layers += [nn.Conv2d(cfgs[4], cfgs[5], kernel_size=3, padding=0)] # out: 8x8
-    layers += [nn.Conv2d(cfgs[5], cfgs[6], kernel_size=1, padding=0)]
-    layers += [nn.Conv2d(cfgs[6], cfgs[7], kernel_size=3, padding=0)] # out: 6x6
+    layers += [nn.Conv2d(in_channels, cfgs[0], kernel_size=1, padding=0)] # out: 19x19
+    layers += [nn.Conv2d(cfgs[0], cfgs[1], kernel_size=3, stride=2, padding=1)] # out: 10x10
+    layers += [nn.Conv2d(cfgs[1], cfgs[2], kernel_size=1, padding=0)] # out: 10x10
+    layers += [nn.Conv2d(cfgs[2], cfgs[3], kernel_size=3, stride=2, padding=1)] # out: 5x5
+    layers += [nn.Conv2d(cfgs[3], cfgs[4], kernel_size=1, padding=0)] # out:5x5
+    layers += [nn.Conv2d(cfgs[4], cfgs[5], kernel_size=3, padding=0)] # out: 3x3
+    layers += [nn.Conv2d(cfgs[5], cfgs[6], kernel_size=1, padding=0)] # out: 3x3
+    layers += [nn.Conv2d(cfgs[6], cfgs[7], kernel_size=3, padding=0)] # out: 1x1
 
     return nn.ModuleList(layers)
 
