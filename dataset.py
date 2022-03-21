@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     batch_iter = iter(dataloader_dict['train'])
     imgs, targets = next(batch_iter)
+    print(targets[0])
 
     
 

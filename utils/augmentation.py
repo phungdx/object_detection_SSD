@@ -416,4 +416,3 @@ class SSDAugmentation(object):
 
     def __call__(self, img, boxes, labels):
         return self.augment(img, boxes, labels)
-1

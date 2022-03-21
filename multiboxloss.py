@@ -16,23 +16,27 @@ class MultiBoxLoss(nn.Module):
     def forward(self, predictions, targets):
         loc_data, conf_data, dbox_list = predictions
 
-         # loc_data: (num_batch, num_dbox)
+         # loc_data: (num_batch, num_dbox, 4)
         num_batch = loc_data.size(0)
         num_dbox = loc_data.size(1) # 8732
         # conf_data: (num_batch, num_dbox, num_classes)
         num_classes = conf_data.size(2)
 
-        conf_t_label = torch.LongTensor(num_batch, num_dbox).to(self.device)
-        loc_t = torch.Tensor(num_batch, num_dbox, 4).to(self.device)
+        loc_t = torch.Tensor(num_batch, num_dbox, 4).to(self.device) # out: (batch_num, 8732, 4)
+        conf_t_label = torch.LongTensor(num_batch, num_dbox).to(self.device) # out: (batch_num, 8732)
 
         for idx in range(num_batch):
-            # targets: (batch_size, num_bbox, 5)
+            # targets: (batch_size, num_bbox, 5) and 5 --> [xmin, ymin, xmax, ymax, label]
             truths = targets[idx][:, :-1].to(self.device) # [xmin, ymin, xmax, ymax]
             labels = targets[idx][:,-1].to(self.device)
             
             dbox = dbox_list.to(self.device)
             variances = [0.1, 0.2]
             match(self.jaccard_threshold, truths, dbox, variances, labels, loc_t, conf_t_label, idx)
+
+        # print(conf_t_label.shape)
+        # import sys
+        # sys.exit()
 
         # SmoothL1Loss
         pos_mask = conf_t_label > 0

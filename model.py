@@ -46,44 +46,44 @@ def create_extras():
 
 
 def create_loc_conf(num_classes=21, bbox_ratio_num=[4,6,6,6,4,4]):
-    loc_layers = []
-    conf_layers = []
+    loc_layers = [] # shape: (batch_num, num_box, 4)
+    conf_layers = [] # shape: (batch_num, num_box, num_classes)
 
     # source 1
     # loc
-    loc_layers += [nn.Conv2d(512, bbox_ratio_num[0]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(512, bbox_ratio_num[0]*4, kernel_size=3, padding=1)] # out: 38x38
     # conf
-    conf_layers += [nn.Conv2d(512, bbox_ratio_num[0]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(512, bbox_ratio_num[0]*num_classes, kernel_size=3, padding=1)] # out: 38x38
 
     # source 2
     # loc
-    loc_layers += [nn.Conv2d(1024, bbox_ratio_num[1]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(1024, bbox_ratio_num[1]*4, kernel_size=3, padding=1)] # out: 19x19
     # conf
-    conf_layers += [nn.Conv2d(1024, bbox_ratio_num[1]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(1024, bbox_ratio_num[1]*num_classes, kernel_size=3, padding=1)] # out: 19x19
 
     # source 3
     # loc
-    loc_layers += [nn.Conv2d(512, bbox_ratio_num[2]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(512, bbox_ratio_num[2]*4, kernel_size=3, padding=1)] # out: 10x10
     # conf
-    conf_layers += [nn.Conv2d(512, bbox_ratio_num[2]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(512, bbox_ratio_num[2]*num_classes, kernel_size=3, padding=1)] # out: 10x10
 
     # source 4
     # loc
-    loc_layers += [nn.Conv2d(256, bbox_ratio_num[3]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(256, bbox_ratio_num[3]*4, kernel_size=3, padding=1)] # out: 5x5
     # conf
-    conf_layers += [nn.Conv2d(256, bbox_ratio_num[3]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(256, bbox_ratio_num[3]*num_classes, kernel_size=3, padding=1)] # out: 5x5
 
     # source 5
     # loc
-    loc_layers += [nn.Conv2d(256, bbox_ratio_num[4]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(256, bbox_ratio_num[4]*4, kernel_size=3, padding=1)] # out: 3x3
     # conf
-    conf_layers += [nn.Conv2d(256, bbox_ratio_num[4]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(256, bbox_ratio_num[4]*num_classes, kernel_size=3, padding=1)] # out: 3x3
 
     # source 6
     # loc
-    loc_layers += [nn.Conv2d(256, bbox_ratio_num[5]*4, kernel_size=3, padding=1)]
+    loc_layers += [nn.Conv2d(256, bbox_ratio_num[5]*4, kernel_size=3, padding=1)] # out: 1x1
     # conf
-    conf_layers += [nn.Conv2d(256, bbox_ratio_num[5]*num_classes, kernel_size=3, padding=1)]
+    conf_layers += [nn.Conv2d(256, bbox_ratio_num[5]*num_classes, kernel_size=3, padding=1)] # out: 1x1
 
     return nn.ModuleList(loc_layers), nn.ModuleList(conf_layers)
 
@@ -153,8 +153,8 @@ class SSD(nn.Module):
             loc.append(l(x).permute(0,2,3,1).contiguous())
             conf.append(c(x).permute(0, 2, 3, 1).contiguous())
 
-        loc = torch.cat([o.view(o.size(0),-1)for o in loc],dim=1) # (batch size, 34928) 4*8732
-        conf = torch.cat([o.view(o.size(0),-1)for o in conf],dim=1) # (batch size, 183372) 21*8732
+        loc = torch.cat([o.view(o.size(0),-1) for o in loc],dim=1) # (batch size, 34928) 4*8732
+        conf = torch.cat([o.view(o.size(0),-1) for o in conf],dim=1) # (batch size, 183372) 21*8732
 
         loc = loc.view(loc.size(0), -1, 4) # (batch_size, 8732, 4)
         conf = conf.view(conf.size(0), -1, self.num_classes) # (batch_size, 8732, 21)
@@ -191,7 +191,7 @@ def decode(loc, defbox_list):
 # Non-Maximum Suppression
 def NMS(boxes, scores, overlap=0.45, top_k=200):
     """
-    boxes: [num_box, 4]
+    boxes: [num_box, 4] # các boxes thỏa mãn điều kiện để đi vào nms
     scores: [num_box]
 
     """
@@ -204,12 +204,13 @@ def NMS(boxes, scores, overlap=0.45, top_k=200):
     y2 = boxes[:,3]
 
     # area of boxes
-    area = torch.mul(x2-x1, y2-y1)
+    area = torch.mul(x2-x1, y2-y1) # area: (num_boxes, 1)
 
     tmp_x1 = boxes.new()
     tmp_y1 = boxes.new()
     tmp_x2 = boxes.new()
     tmp_y2 = boxes.new()
+
     tmp_w = boxes.new()
     tmp_h = boxes.new()
 
@@ -279,10 +280,14 @@ class Detect(Function):
         output = torch.zeros(num_batch, num_classes, self.top_k, 5)
         # xử lý từng ảnh 1
         for i in range(num_batch):
-            # Tính bboc từ offset information và default boxes
+            # Tính bbox từ offset information và default boxes
             decode_boxes = decode(loc_data[i], defbox_list) # (bacth_size x 8732 x 4)
 
             # copy confidence score cua anh thu i
+            print(conf_preds[i])
+            import sys
+            sys.exit()
+
             conf_scores = conf_preds[i].clone()
 
             for category in range(1, num_classes):
@@ -317,7 +322,3 @@ if __name__ == '__main__':
 
     ssd = SSD(phase='train', cfg=cfg)
     print(ssd)
-
-
-
-
