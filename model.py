@@ -215,7 +215,7 @@ def NMS(boxes, scores, overlap=0.45, top_k=200):
     tmp_h = boxes.new()
 
     value, idx = scores.sort(dim=0)
-    idx = idx[-topk:] # id của top 200 boxes có độ tự tin cao nhất
+    idx = idx[-top_k:] # id của top 200 boxes có độ tự tin cao nhất
 
     while idx.numel() > 0:
         i = idx[-1] # id của box có độ tự tin cao nhất
@@ -281,12 +281,9 @@ class Detect(Function):
         # xử lý từng ảnh 1
         for i in range(num_batch):
             # Tính bbox từ offset information và default boxes
-            decode_boxes = decode(loc_data[i], defbox_list) # (bacth_size x 8732 x 4)
+            decode_boxes = decode(loc_data[i], dbox_list) # (bacth_size x 8732 x 4)
 
             # copy confidence score cua anh thu i
-            print(conf_preds[i])
-            import sys
-            sys.exit()
 
             conf_scores = conf_preds[i].clone()
 
