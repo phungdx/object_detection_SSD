@@ -296,11 +296,11 @@ class Detect(Function):
                     continue
                 
                 # đưa chiều về giống chiều của decode_boxes để tính toán
-                l_mask = category_mask.unsqueeze(1).expand_as(default_boxes) # (8732,4)
+                l_mask = category_mask.unsqueeze(1).expand_as(decode_boxes) # (8732,4)
                 boxes = decode_boxes[l_mask].view(-1,4)
 
                 # count: số lượng objects của 1 class có trong ảnh
-                ids, count = nms(boxes, scores, overlap=self.nms_thresh, top_k=self.top_k)
+                ids, count = NMS(boxes, scores, overlap=self.nms_thresh, top_k=self.top_k)
 
                 output[i, category, :count] = torch.cat((scores[ids[:count]].unsqueeze(1), boxes[ids[:count]]), 1)
 
